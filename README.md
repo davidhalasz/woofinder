@@ -18,7 +18,9 @@ flutter pub get
 flutter gen-l10n
 ```
 
-<img src="docs/kep1.png" alt="Kép leírása" style="width: 300px; height: auto;">
-<img src="docs/kep2.png" alt="Kép leírása" style="width: 300px; height: auto;">
-<img src="docs/kep3.png" alt="Kép leírása" style="width: 300px; height: auto;">
-<img src="docs/kep4.png" alt="Kép leírása" style="width: 300px; height: auto;">
+<div style="display: flex; flex-wrap: wrap;">
+  <img src="docs/kep1.png" alt="Kép leírása" style="width: 300px; height: auto;">
+  <img src="docs/kep2.png" alt="Kép leírása" style="width: 300px; height: auto;">
+  <img src="docs/kep3.png" alt="Kép leírása" style="width: 300px; height: auto;">
+  <img src="docs/kep4.png" alt="Kép leírása" style="width: 300px; height: auto;">
+</div>
