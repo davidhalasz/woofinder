@@ -25,7 +25,8 @@ class _ImageInputState extends State<ImageInput> {
   Future<void> _onImageButtonPressed() async {
     final ImagePicker _picker = ImagePicker();
     try {
-      final List<XFile>? pickedFileList = await _picker.pickMultiImage();
+      final List<XFile>? pickedFileList =
+          await _picker.pickMultiImage(maxWidth: 650, imageQuality: 50);
       setState(() {
         _imageFileList = pickedFileList;
       });
@@ -46,12 +47,12 @@ class _ImageInputState extends State<ImageInput> {
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: Color(0xffE5E6EB),
+          color: const Color(0xffE5E6EB),
           boxShadow: [
-            BoxShadow(
+            const BoxShadow(
                 offset: Offset(8, 8), color: Colors.black38, blurRadius: 15),
             BoxShadow(
-                offset: Offset(-8, -8),
+                offset: const Offset(-8, -8),
                 color: Colors.white.withOpacity(0.75),
                 blurRadius: 15),
           ],
@@ -62,19 +63,19 @@ class _ImageInputState extends State<ImageInput> {
               _PreviewImages(imageFileList: _imageFileList),
             if (_imageFileList == null)
               Padding(
-                padding: EdgeInsets.all(5),
+                padding: const EdgeInsets.all(10),
                 child: Text(
                   AppLocalizations.of(context).noImageSelected,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                     shadows: [
-                      Shadow(
-                          offset: Offset(3, 3),
+                      const Shadow(
+                          offset: const Offset(3, 3),
                           color: Colors.black38,
                           blurRadius: 18),
                       Shadow(
-                          offset: Offset(-3, -3),
+                          offset: const Offset(-3, -3),
                           color: Colors.white.withOpacity(0.85),
                           blurRadius: 18)
                     ],
@@ -82,12 +83,24 @@ class _ImageInputState extends State<ImageInput> {
                   ),
                 ),
               ),
-            TextButton.icon(
-              onPressed: _onImageButtonPressed,
-              icon: Icon(Icons.image),
-              label: Text(AppLocalizations.of(context).choosePic),
-              style: TextButton.styleFrom(
-                primary: cSecondaryColor,
+            SizedBox(
+              width: double.infinity,
+              child: Container(
+                decoration: const BoxDecoration(
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(16),
+                    bottomRight: Radius.circular(16),
+                  ),
+                  color: cBlackBGColor,
+                ),
+                child: TextButton.icon(
+                  onPressed: _onImageButtonPressed,
+                  icon: const Icon(Icons.image),
+                  label: Text(AppLocalizations.of(context).choosePic),
+                  style: TextButton.styleFrom(
+                    primary: cGrayBGColor,
+                  ),
+                ),
               ),
             ),
           ],
@@ -109,11 +122,11 @@ class _PreviewImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       child: Semantics(
           child: GridView.builder(
             shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 5,
                 childAspectRatio: 1,
                 crossAxisSpacing: 10,

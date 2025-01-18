@@ -13,9 +13,11 @@ class DBHelper with ChangeNotifier {
 
   static void _createDb(Database db) {
     db.execute(
-        'CREATE TABLE location_info(id TEXT PRIMARY KEY, distance INTEGER, latitude TEXT, longitude TEXT)');
+        'CREATE TABLE location_infos(id TEXT PRIMARY KEY, distance INTEGER, latitude TEXT, longitude TEXT, locale TEXT)');
     db.execute(
-        'CREATE TABLE notification_info(id TEXT PRIMARY KEY, notificationNumber INTEGER)');
+        'CREATE TABLE notification_infos(id TEXT PRIMARY KEY, userName TEXT, action TEXT, createdAt TEXT, animalId TEXT, uid TEXT)');
+    db.execute(
+        'CREATE TABLE notification_counter(id TEXT PRIMARY KEY, notificationNumber INTEGER)');
   }
 
   static Future<void> insert(String table, Map<String, Object> data) async {
@@ -27,24 +29,31 @@ class DBHelper with ChangeNotifier {
     );
   }
 
-  notifyListeners();
-
   static Future<bool> isEmptyTable() async {
     final db = await DBHelper.database();
     var count = Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) FROM location_info'));
+        await db.rawQuery('SELECT COUNT(*) FROM location_infos'));
     if (count! > 0) {
       return false;
     }
-
     return true;
+  }
+
+  static Future<void> deleteNotification(String id) async {
+    final db = await DBHelper.database();
+    await db.rawQuery('DELETE FROM notification_infos WHERE id = $id');
   }
 
   static Future<Map<String, dynamic>?> getData(String table, String id) async {
     final db = await DBHelper.database();
     final List<Map<String, dynamic>> maps = await db.query(table);
     final item = maps.firstWhereOrNull((element) => element['id'] == id);
-
     return item;
+  }
+
+  static Future<List<Map<String, dynamic>>> getAllDataSQL(String table) async {
+    final db = await DBHelper.database();
+    final List<Map<String, dynamic>> maps = await db.query(table);
+    return maps;
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:location/location.dart';
 import 'package:woof/models/locationSql.dart';
@@ -15,35 +17,37 @@ class CurrentLocation with ChangeNotifier {
     required int distance,
     required String currLatitude,
     required String currLlongitude,
+    required String locale,
   }) async {
     final newLocation = LocationSql(
       id: id,
       distance: distance,
       latitude: currLatitude,
       longitude: currLlongitude,
+      locale: locale,
     );
 
-    DBHelper.insert('location_info', {
+    DBHelper.insert('location_infos', {
       'id': newLocation.id,
       'distance': newLocation.distance,
       'latitude': newLocation.latitude,
-      'longitude': newLocation.longitude
+      'longitude': newLocation.longitude,
+      'locale': newLocation.locale,
     });
-    print('Location info has changed!');
     _item = newLocation;
     notifyListeners();
   }
 
   Future<LocationSql> fetchAndSetLocation(String id) async {
     final bool isEmpty = await CurrentLocation().isEmptyTable();
-    final data = await DBHelper.getData('location_info', id);
+    final data = await DBHelper.getData('location_infos', id);
     if (!isEmpty && data != null) {
-      print('Location fetched data called');
       _item = LocationSql(
           id: data['id'],
           distance: data['distance'],
           latitude: data['latitude'].toString(),
-          longitude: data['longitude'].toString());
+          longitude: data['longitude'].toString(),
+          locale: data['locale']);
       notifyListeners();
       return item;
     } else {
@@ -52,14 +56,30 @@ class CurrentLocation with ChangeNotifier {
           id: id,
           distance: 60,
           latitude: location.latitude.toString(),
-          longitude: location.longitude.toString());
+          longitude: location.longitude.toString(),
+          locale: Platform.localeName);
       addLocation(
         id: newItem.id,
         distance: newItem.distance,
         currLatitude: newItem.latitude,
         currLlongitude: newItem.longitude,
+        locale: newItem.locale,
       );
+      notifyListeners();
       return newItem;
+    }
+  }
+
+  Future firstLocationSetting(String id) async {
+    var isEmpty = await isEmptyTable();
+    if (isEmpty) {
+      addLocation(
+        id: id,
+        distance: 60,
+        currLatitude: "47.497913",
+        currLlongitude: "19.040236",
+        locale: Platform.localeName,
+      );
     }
   }
 

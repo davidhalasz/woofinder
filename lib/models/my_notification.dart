@@ -5,8 +5,9 @@ class MyNotification with ChangeNotifier {
   final String id;
   final String userName;
   final String action;
-  final Timestamp createdAt;
+  final DateTime createdAt;
   final String animalId;
+  final String uid;
 
   MyNotification({
     required this.id,
@@ -14,12 +15,14 @@ class MyNotification with ChangeNotifier {
     required this.action,
     required this.createdAt,
     required this.animalId,
+    required this.uid,
   });
 
-  MyNotification.fromSnapshot(String id, Map<String, dynamic> snapshot)
-      : id = id,
+  MyNotification.fromSnapshot(Map<String, dynamic> snapshot, String uid)
+      : id = snapshot['id'],
         userName = snapshot['userName'],
         action = snapshot['action'],
-        createdAt = snapshot['createdAt'],
-        animalId = snapshot['animalId'];
+        createdAt = DateTime.parse(snapshot['createdAt']),
+        animalId = snapshot['animalId'],
+        uid = uid;
 }

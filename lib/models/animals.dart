@@ -14,6 +14,7 @@ class Animals with ChangeNotifier {
   double? distance;
   bool solved;
   Timestamp? solvedDate;
+  final bool featured;
 
   Animals(
       {required this.id,
@@ -27,7 +28,8 @@ class Animals with ChangeNotifier {
       required this.address,
       this.distance,
       required this.solved,
-      this.solvedDate});
+      this.solvedDate,
+      required this.featured});
 
   Animals.fromSnapshot(String id, Map<String, dynamic> snapshot)
       : id = id,
@@ -40,5 +42,6 @@ class Animals with ChangeNotifier {
         longitude = double.parse(snapshot['longitude'].toString()),
         address = snapshot['address'],
         solved = snapshot['solved'],
-        solvedDate = snapshot['solvedDate'];
+        solvedDate = snapshot['solvedDate'],
+        featured = snapshot['featured'];
 }

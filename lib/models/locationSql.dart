@@ -6,10 +6,12 @@ class LocationSql with ChangeNotifier {
     required this.distance,
     required this.latitude,
     required this.longitude,
+    required this.locale,
   });
 
   final String id;
   final int distance;
   final String latitude;
   final String longitude;
+  final String locale;
 }

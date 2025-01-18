@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+
 const admin = require("firebase-admin");
 
 admin.initializeApp();
@@ -15,6 +16,8 @@ exports.myFunction = functions.firestore
           uid: snapshot.data().userId,
           animalId: snapshot.id,
         },
+      }, {
+        content_available: true, priority: "high",
       });
     });
 
@@ -27,6 +30,9 @@ exports.commentFunction = functions.firestore
           body: snapshot.data().action,
           animalId: snapshot.data().animalId,
           commentSender: snapshot.data().uid,
+          toUser: snapshot.data().toUser,
         },
+      }, {
+        content_available: true, priority: "high",
       });
     });

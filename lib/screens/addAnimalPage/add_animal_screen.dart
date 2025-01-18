@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:woof/constants.dart';
 import 'package:woof/helpers/location_helper.dart';
-
+import 'package:permission_handler/permission_handler.dart' as handler;
 import 'package:woof/providers/found_animals.dart';
 import 'components/description_input.dart';
 import 'components/location_input.dart';
@@ -34,6 +35,9 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
   final _descController = TextEditingController();
   final _form = GlobalKey<FormState>();
   Place? _pickedLocation;
+  bool _isFeatured = false;
+  final user = FirebaseAuth.instance.currentUser!;
+  String role = "";
 
   List<XFile>? _imageFileList;
   dynamic pickImageError;
@@ -44,6 +48,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
   @override
   void initState() {
     super.initState();
+    _getUserData();
   }
 
   @override
@@ -58,6 +63,18 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
 
   void _selectPlace(double lat, double lng) {
     _pickedLocation = Place(latitude: lat, longitude: lng);
+  }
+
+  void _getUserData() async {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .listen((userData) {
+      setState(() {
+        role = userData.data()!['role'];
+      });
+    });
   }
 
   Future<void> _saveForm() async {
@@ -100,7 +117,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           final ref = FirebaseStorage.instance
               .ref()
               .child('animal_images')
-              .child(Uuid().v4() + '.jpeg');
+              .child(const Uuid().v4() + '.jpeg');
           await ref.putFile(File(_imageFileList![i].path));
           dowUrls.add(await ref.getDownloadURL());
         }
@@ -111,7 +128,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           .collection('users')
           .doc(user.uid)
           .get();
-      final address = await LocationHelper.getPlaceAddress(
+      final address = await LocationHelper.getCountryStreet(
         _pickedLocation!.latitude,
         _pickedLocation!.longitude,
       );
@@ -131,6 +148,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
         'longitude': updatedLocation.longitude,
         'address': updatedLocation.address,
         'solved': false,
+        'featured': _isFeatured,
       }).then((value) {
         Provider.of<FoundAnimals>(context, listen: false).addAnimal(value.id);
       });
@@ -146,7 +164,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: Text('Okay'))
+                child: const Text('Ok'))
           ],
         ),
       );
@@ -168,7 +186,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           backgroundColor: cBlackBGColor,
           elevation: 0,
           leading: IconButton(
-              padding: EdgeInsets.only(left: 20),
+              padding: const EdgeInsets.only(left: 20),
               icon: SvgPicture.asset(
                 'assets/icons/left-arrow.svg',
                 color: Colors.white,
@@ -180,7 +198,7 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           centerTitle: false,
           title: Text(
             AppLocalizations.of(context).addNewPostTitle,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w400,
               color: Colors.white,
@@ -188,25 +206,28 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
           ),
         ),
         body: _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(color: cSecondaryColor),
               )
             : SafeArea(
                 child: Column(
                   children: <Widget>[
-                    Text(
-                      AppLocalizations.of(context).addNewPostSubtitle,
-                      style: TextStyle(color: Colors.white),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                      child: Text(
+                        AppLocalizations.of(context).addNewPostSubtitle,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     Expanded(
                       child: Stack(
                         children: <Widget>[
                           Container(
-                            margin: EdgeInsets.only(
+                            margin: const EdgeInsets.only(
                               top: 40,
                             ),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Color(0xffE5E6EB),
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(50),
@@ -215,8 +236,8 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                             ),
                             child: Container(
                               height: double.infinity,
-                              padding: EdgeInsets.only(top: 20),
-                              margin: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.only(top: 20),
+                              margin: const EdgeInsets.symmetric(
                                 horizontal: 5,
                                 vertical: 5,
                               ),
@@ -233,19 +254,48 @@ class _AddAnimalScreenState extends State<AddAnimalScreen> {
                                         ),
                                         ImageInput(_selectImages),
                                         LocationInput(_selectPlace),
+                                        if (role == "admin")
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 20),
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                  color: cBlackBGColor),
+                                              child: CheckboxListTile(
+                                                activeColor: cSecondaryColor,
+                                                value: _isFeatured,
+                                                onChanged: (bool? value) {
+                                                  setState(
+                                                    () {
+                                                      _isFeatured = value!;
+                                                    },
+                                                  );
+                                                },
+                                                title: const Text(
+                                                  "Featured Post",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         Padding(
-                                          padding: EdgeInsets.only(top: 25),
+                                          padding:
+                                              const EdgeInsets.only(top: 25),
                                           child: TextButton(
                                             style: TextButton.styleFrom(
                                                 backgroundColor:
                                                     cSecondaryColor,
                                                 primary: Colors.white,
-                                                padding: EdgeInsets.all(15)),
+                                                padding:
+                                                    const EdgeInsets.all(15)),
                                             child: Text(
                                               AppLocalizations.of(context)
                                                   .send
                                                   .toUpperCase(),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontWeight: FontWeight.bold),
                                             ),
                                             onPressed: _saveForm,

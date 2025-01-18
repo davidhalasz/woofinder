@@ -20,13 +20,13 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         left: 10,
         right: 10,
         bottom: 10,
       ),
       height: 70,
-      color: Color(0xff313131),
+      color: const Color(0xff313131),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -56,13 +56,6 @@ class BottomNavBar extends StatelessWidget {
           IconButton(
             onPressed: () {
               navigatorToSettings(context);
-              /*
-              Navigator.of(context).push<LocationSql>(
-                CupertinoPageRoute(
-                  builder: (ctx) => SettingsScreen(locSql),
-                ),
-              );
-              */
             },
             icon: SvgPicture.asset(
               'assets/icons/lines.svg',

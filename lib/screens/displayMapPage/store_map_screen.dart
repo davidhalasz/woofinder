@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +32,14 @@ class _MapScreenState extends State<StoreMapScreen> {
   }
 
   void setCustomMarker() async {
-    markerIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(), 'assets/images/darker_pet_marker-138x187.png');
+    if (Platform.isIOS) {
+      markerIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(), 'assets/images/darker_pet_marker48.png');
+    } else {
+      markerIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(),
+          'assets/images/darker_pet_marker-138x187.png');
+    }
   }
 
   String postedAgo(DateTime postedDateTime) {
@@ -66,7 +74,7 @@ class _MapScreenState extends State<StoreMapScreen> {
           onTap: () {
             showModalBottomSheet(
                 backgroundColor: cBlackBGColor,
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(50),
                     topRight: Radius.circular(50),
@@ -89,7 +97,7 @@ class _MapScreenState extends State<StoreMapScreen> {
                                   child: Text(
                                     element['username'],
                                     textAlign: TextAlign.left,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                       color: cGrayBGColor,
@@ -98,7 +106,7 @@ class _MapScreenState extends State<StoreMapScreen> {
                                 ),
                                 Text(
                                   postedAgo(element['createdAt'].toDate()),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: cGrayBGColor,
                                   ),
                                 ),
@@ -113,7 +121,7 @@ class _MapScreenState extends State<StoreMapScreen> {
                                   softWrap: true,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.left,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     color: cGrayBGColor,
                                   ),
@@ -139,7 +147,7 @@ class _MapScreenState extends State<StoreMapScreen> {
                                   },
                                   child: Text(
                                     AppLocalizations.of(context).moreInfo,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -179,7 +187,7 @@ class _MapScreenState extends State<StoreMapScreen> {
           builder: (context, snapshot) {
             return GoogleMap(
                 initialCameraPosition: CameraPosition(
-                  target: _initialcameraposition,
+                  target: widget.currentLoc,
                   zoom: 16,
                 ),
                 onMapCreated: _onMapCreated,

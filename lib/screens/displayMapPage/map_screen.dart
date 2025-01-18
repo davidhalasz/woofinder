@@ -3,12 +3,15 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:woof/constants.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:woof/models/locationSql.dart';
 
 class MapScreen extends StatefulWidget {
   final bool isSelecting;
+  final LocationSql currentLoc;
 
   MapScreen({
     this.isSelecting = false,
+    required this.currentLoc,
   });
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -16,24 +19,11 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   LatLng? _pickedLocation;
-  late LatLng _initialcameraposition;
   late GoogleMapController _controller;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentLatLng();
-  }
-
-  void _getCurrentLatLng() async {
-    await Location().getLocation().then((currLocation) {
-      setState(() {
-        _initialcameraposition = new LatLng(
-          currLocation.latitude as double,
-          currLocation.longitude as double,
-        );
-      });
-    });
   }
 
   void _selectLocation(LatLng position) {
@@ -43,12 +33,15 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _onMapCreated(GoogleMapController controller) {
-    _selectLocation(_initialcameraposition);
     _controller = controller;
   }
 
   @override
   Widget build(BuildContext context) {
+    LatLng _initialcameraposition = LatLng(
+        double.parse(widget.currentLoc.latitude),
+        double.parse(widget.currentLoc.longitude));
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).selectPlace),
@@ -61,7 +54,7 @@ class _MapScreenState extends State<MapScreen> {
                   : () {
                       Navigator.of(context).pop(_pickedLocation);
                     },
-              icon: Icon(Icons.check),
+              icon: const Icon(Icons.check),
             )
         ],
       ),

@@ -22,7 +22,7 @@ class NotificationCounter with ChangeNotifier {
       notificationNumber: notificationNumber,
     );
 
-    DBHelper.insert('notification_info', {
+    DBHelper.insert('notification_counter', {
       'id': newNotification.id,
       'notificationNumber': newNotification.notificationNumber
     });
@@ -32,7 +32,7 @@ class NotificationCounter with ChangeNotifier {
   }
 
   Future<NotificationNumber> fetchAndSetLocation(String id) async {
-    final data = await DBHelper.getData('notification_info', id);
+    final data = await DBHelper.getData('notification_counter', id);
     if (data != null) {
       print('Notification fetched data called');
       _item = NotificationNumber(

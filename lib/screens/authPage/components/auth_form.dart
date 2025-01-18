@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:woof/constants.dart';
 import 'package:woof/screens/authPage/reset_password_screen.dart';
@@ -16,6 +17,8 @@ class AuthForm extends StatefulWidget {
     String username,
     String password,
     bool isLogin,
+    bool acceptedAge,
+    bool acceptedRules,
     BuildContext ctx,
   ) submitFn;
 
@@ -29,6 +32,8 @@ class _AuthFormState extends State<AuthForm> {
   String _userEmail = '';
   String _userName = '';
   String _userPassword = '';
+  bool _acceptedAge = false;
+  bool _acceptedRules = false;
 
   void trySubmit() {
     final isValid = _formKey.currentState!.validate();
@@ -41,6 +46,8 @@ class _AuthFormState extends State<AuthForm> {
         _userName.trim(),
         _userPassword.trim(),
         _isLogin,
+        _acceptedAge,
+        _acceptedRules,
         context,
       );
     }
@@ -123,8 +130,53 @@ class _AuthFormState extends State<AuthForm> {
                   },
                 ),
                 SizedBox(height: 12),
+                if (!_isLogin)
+                  CheckboxListTile(
+                    value: _acceptedAge,
+                    onChanged: (bool? value) {
+                      setState(
+                        () {
+                          _acceptedAge = value!;
+                        },
+                      );
+                    },
+                    title: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: AppLocalizations.of(context).accept1,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          TextSpan(
+                            text: " " +
+                                AppLocalizations.of(context).accept3 +
+                                " ",
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (!_isLogin)
+                  CheckboxListTile(
+                    value: _acceptedRules,
+                    onChanged: (bool? value) {
+                      setState(
+                        () {
+                          _acceptedRules = value!;
+                        },
+                      );
+                    },
+                    title: Text(
+                      AppLocalizations.of(context).acceptAge,
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 12),
                 if (widget.isLoading)
-                  CircularProgressIndicator(
+                  const CircularProgressIndicator(
                     color: cSecondaryColor,
                   ),
                 if (!widget.isLoading)

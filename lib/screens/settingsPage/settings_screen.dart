@@ -94,6 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 distance: distance!.toInt(),
                 currLatitude: widget.locSql.latitude,
                 currLlongitude: widget.locSql.longitude,
+                locale: widget.locSql.locale,
               );
 
               Navigator.pop(context);

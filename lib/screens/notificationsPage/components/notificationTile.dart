@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:woof/constants.dart';
 import 'package:woof/models/my_notification.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:woof/screens/animalDetailPage/animal_detail_screen.dart';
+
+import '../../errorPage/error_screen.dart';
 
 class NotificationTile extends StatelessWidget {
   final MyNotification notification;
@@ -40,25 +43,24 @@ class NotificationTile extends StatelessWidget {
       return number.toString() + ' m';
     }
 
-    var postedDateTime = notification.createdAt.toDate();
+    var postedDateTime = notification.createdAt;
 
     String _postedAgo = postedAgo(postedDateTime);
 
     var content = '';
-    if (notification.action == 'commentedOnFollowedPost') {
-      content = "wrote a comment on a found animal you have commented.";
+    if (notification.action == 'CommentedOnFollowedPost') {
+      content = AppLocalizations.of(context).commentedOnFollowedPost;
     }
     if (notification.action == 'commentedOnOwnPost') {
-      content = "wrote a comment on your found animal.";
-    }
-    if (notification.action == 'newAnimalAdded') {
-      content = "found a new animal!";
+      content = AppLocalizations.of(context).commentedOnOwnPost;
+    } else {
+      content = AppLocalizations.of(context).foundNewAnimal;
     }
     return ListTile(
       textColor: cGrayBGColor,
       leading: Container(
         height: double.infinity,
-        child: Icon(
+        child: const Icon(
           Icons.circle_outlined,
           color: cGrayBGColor,
           size: 14,
@@ -66,29 +68,38 @@ class NotificationTile extends StatelessWidget {
       ),
       title: RichText(
         text: TextSpan(
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15.0,
           ),
           children: <TextSpan>[
             TextSpan(
               text: notification.userName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            TextSpan(text: " "),
+            const TextSpan(text: " "),
             TextSpan(text: content),
           ],
         ),
       ),
       subtitle: Text(_postedAgo),
-      onTap: () {
-        Navigator.push(
-          context,
-          CupertinoPageRoute(
-              builder: (context) =>
-                  AnimalDetailScreen(notification.animalId, false)),
-        );
+      onTap: () async {
+        final animalSnapshot = await FirebaseFirestore.instance
+            .collection('animal')
+            .doc(notification.animalId)
+            .get();
+
+        if (animalSnapshot.exists) {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+                builder: (context) =>
+                    AnimalDetailScreen(notification.animalId, false)),
+          );
+        } else {
+          Navigator.of(context).pushNamed(ErrorScreen.routeName);
+        }
       },
     );
   }

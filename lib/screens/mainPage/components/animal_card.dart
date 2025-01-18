@@ -40,6 +40,14 @@ class _AnimalCardState extends State<AnimalCard> {
       cornerColor = greenColor;
     }
 
+    String formattedText(String address) {
+      if (address.contains("Hrsz.:")) {
+        var splitted = address.split(",");
+        return splitted[0];
+      }
+      return address;
+    }
+
     double distanceInMeters = Geolocator.distanceBetween(
       widget.currentLatitude,
       widget.currentLongitude,
@@ -80,7 +88,7 @@ class _AnimalCardState extends State<AnimalCard> {
 
     String _postedAgo = postedAgo(postedDateTime);
 
-    Timer.periodic(Duration(seconds: 30), (timer) {
+    Timer.periodic(const Duration(seconds: 30), (timer) {
       if (mounted) {
         setState(() {
           _postedAgo = postedAgo(postedDateTime);
@@ -108,13 +116,13 @@ class _AnimalCardState extends State<AnimalCard> {
         }
       },
       child: Container(
-        margin: EdgeInsets.symmetric(
+        margin: const EdgeInsets.symmetric(
           horizontal: 5,
           vertical: 5,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: Color(0xffE5E6EB),
+          color: const Color(0xffE5E6EB),
           boxShadow: [cBoxShadow],
           border: Border.all(
             color: solvedBorderColor,
@@ -129,43 +137,43 @@ class _AnimalCardState extends State<AnimalCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Padding(
-                    padding: EdgeInsets.only(left: 10),
+                    padding: const EdgeInsets.only(left: 10),
                     child: Container(
                       child: Text(
                         animal.username,
                         textAlign: TextAlign.left,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                     ),
                   ),
                   Text(_postedAgo),
                   Container(
-                    padding: EdgeInsets.symmetric(
+                    padding: const EdgeInsets.symmetric(
                       horizontal: 15,
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: cornerColor,
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
+                        topRight: const Radius.circular(10),
                       ),
                     ),
                     child: Text(
                       format(distanceInMeters),
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
               ),
             ),
             Padding(
-              padding: EdgeInsets.all(10),
-              child: Text(animal.address),
+              padding: const EdgeInsets.all(10),
+              child: Text(formattedText(animal.address)),
             ),
             Padding(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Container(
                 child: Text(
                   animal.description,
@@ -173,7 +181,7 @@ class _AnimalCardState extends State<AnimalCard> {
                   softWrap: true,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ),
             )

@@ -7,6 +7,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   static const routeName = "/auth";
+
+  const AuthScreen({Key? key}) : super(key: key);
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -14,6 +16,12 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    //_getCurrentLocation();
+  }
 
   _userExists(String username) async {
     try {
@@ -48,6 +56,8 @@ class _AuthScreenState extends State<AuthScreen> {
     String username,
     String password,
     bool isLogin,
+    bool acceptedAge,
+    bool acceptedRules,
     BuildContext ctx,
   ) async {
     UserCredential authResult;
@@ -58,35 +68,87 @@ class _AuthScreenState extends State<AuthScreen> {
       });
 
       if (isLogin) {
-        authResult = await _auth.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      } else {
-        bool isExists = await _userExists(username);
-
-        if (!isExists) {
-          authResult = await _auth.createUserWithEmailAndPassword(
+        try {
+          authResult = await _auth.signInWithEmailAndPassword(
             email: email,
             password: password,
           );
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(authResult.user!.uid)
-              .set({
-            'username': username,
-            'email': email,
-            'role': 'user',
+        } on FirebaseAuthException catch (e) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context).errorOccured,
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              backgroundColor: Theme.of(ctx).errorColor,
+            ),
+          );
+          setState(() {
+            _isLoading = false;
           });
+        }
+      } else {
+        if (acceptedAge && acceptedRules) {
+          bool isExists = await _userExists(username);
+
+          if (!isExists) {
+            setState(() {
+              _isLoading = false;
+            });
+            try {
+              authResult = await _auth.createUserWithEmailAndPassword(
+                email: email,
+                password: password,
+              );
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(authResult.user!.uid)
+                  .set({
+                'username': username,
+                'email': email,
+                'role': 'user',
+              });
+            } catch (e) {
+              ScaffoldMessenger.of(ctx).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    "Error",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  backgroundColor: Theme.of(ctx).errorColor,
+                ),
+              );
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          } else {
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              SnackBar(
+                content: Text(
+                  AppLocalizations.of(context).usernameExists,
+                  style: const TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                backgroundColor: Theme.of(ctx).errorColor,
+              ),
+            );
+            setState(() {
+              _isLoading = false;
+            });
+          }
         } else {
           ScaffoldMessenger.of(ctx).showSnackBar(
             SnackBar(
-              content: Center(
-                child: Text(
-                  AppLocalizations.of(context).usernameExists,
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+              content: Text(
+                AppLocalizations.of(context).needAccept,
+                style: const TextStyle(
+                  color: Colors.white,
                 ),
               ),
               backgroundColor: Theme.of(ctx).errorColor,
@@ -108,7 +170,7 @@ class _AuthScreenState extends State<AuthScreen> {
         SnackBar(
           content: Text(
             message,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
             ),
           ),
